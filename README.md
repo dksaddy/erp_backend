@@ -29,14 +29,22 @@ Provides user authentication, requisition management, and multi-step approval wo
 ```bash
 git clone https://github.com/dksaddy/erp_backend.git
 cd erp_backend
-npm install
+
+```
+
+## Setup .env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/erp
+MONGO_URI=your_secret
 JWT_SECRET=your_jwt_secret
+
+```bash
+npm install
 npm run dev
 
+```
 
-----
+### Registration
+```bash
 {
   "name": "Alice Johnson",
   "email": "alice@example.com",
@@ -44,14 +52,6 @@ npm run dev
   "role": "requester",
   "department": "IT"
 }
-{
-  "message": "Registration successful",
-  "token": "jwt_token",
-  "user": {
-    "id": "user_id",
-    "name": "Alice Johnson",
-    "email": "alice@example.com",
-    "role": "requester",
-    "department": "IT"
-  }
+```
+
 
