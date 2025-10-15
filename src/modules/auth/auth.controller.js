@@ -1,27 +1,73 @@
-import User from "./auth.model.js";
+import User from "../../models/user.model.js";
 import { generateToken } from "../../utils/generateToken.js";
 
+// 🧾 Register new user
 export const register = async (req, res) => {
   try {
-    const user = await User.create(req.body);
-    res.status(201).json(user);
+    const { name, email, password, role, department, managerId } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Create new user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      department,
+      managerId,
+    });
+
+    // Generate JWT token
+    const token = generateToken(user._id, user.role);
+
+    res.status(201).json({
+      message: "Registration successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+      },
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("Register error:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
+// 🔐 Login existing user
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    // Check if user exists
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate token
     const token = generateToken(user._id, user.role);
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
       token,
       user: {
@@ -29,10 +75,11 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        department: user.department,
       },
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
