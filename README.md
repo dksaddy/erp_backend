@@ -100,21 +100,21 @@ npm run dev
 
 erp_backend/
 ├── src/
-│   ├── app.js               # Express app setup
-│   ├── server.js            # Server entry point
-│   ├── config/
-│   │   └── db.js            # MongoDB connection
-│   ├── middlewares/
-│   │   └── authMiddleware.js # Authentication middleware
-│   ├── models/              # Mongoose models
-│   ├── modules/             # Feature modules
-│   │   ├── auth/            # Authentication module
-│   │   └── requisition/     # Requisition module
-│   └── utils/
-│       └── generateToken.js # JWT token generator
-├── .env                     # Environment variables
-├── package.json             # Project metadata and scripts
-└── README.md                # Project documentation
+│ ├── app.js # Express app setup
+│ ├── server.js # Server entry point
+│ ├── config/
+│ │ └── db.js # MongoDB connection configuration
+│ ├── middlewares/
+│ │ └── authMiddleware.js # Authentication & authorization middleware
+│ ├── models/ # Mongoose models (User, Requisition, Action, etc.)
+│ ├── modules/ # Feature-specific modules
+│ │ ├── auth/ # Authentication module (controller, model, routes)
+│ │ └── requisition/ # Requisition module (controller, model, routes)
+│ └── utils/
+│ └── generateToken.js # JWT token generator utility
+├── .env # Environment variables
+├── package.json # Project metadata and npm scripts
+└── README.md # Project documentation
 
 ---
 
