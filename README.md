@@ -33,9 +33,9 @@ cd erp_backend
 ```
 
 ## Setup .env
-PORT=5000
-MONGO_URI=your_secret
-JWT_SECRET=your_jwt_secret
+- PORT=5000
+- MONGO_URI=your_secret
+- JWT_SECRET=your_jwt_secret
 
 ```bash
 npm install
@@ -44,6 +44,7 @@ npm run dev
 ```
 
 ### Registration
+- /api/auth/register
 ```bash
 {
   "name": "Alice Johnson",
@@ -53,5 +54,68 @@ npm run dev
   "department": "IT"
 }
 ```
+
+### Login
+- /api/auth/login
+```bash
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
+```
+
+---
+
+### Requisition
+- POST
+- /api/requisitions
+```bash
+{
+  "title": "Laptop Purchase",
+  "description": "10 Dell laptops for the IT team",
+  "department": "IT",
+  "totalAmount": 2500,
+  "items": [
+    {
+      "name": "Laptop",
+      "qty": 10,
+      "unitPrice": 250
+    }
+  ],
+  "labels": ["priority:high", "vendor:Dell"]
+}
+```
+
+### Requisition Update
+- /api/requisitions/:id
+- PUT
+```bash
+{
+  "decision": "approve",
+  "comment": "Approved by department head"
+}
+```
+
+## Project Structure
+
+erp_backend/
+├── src/
+│   ├── app.js               # Express app setup
+│   ├── server.js            # Server entry point
+│   ├── config/
+│   │   └── db.js            # MongoDB connection
+│   ├── middlewares/
+│   │   └── authMiddleware.js # Authentication middleware
+│   ├── models/              # Mongoose models
+│   ├── modules/             # Feature modules
+│   │   ├── auth/            # Authentication module
+│   │   └── requisition/     # Requisition module
+│   └── utils/
+│       └── generateToken.js # JWT token generator
+├── .env                     # Environment variables
+├── package.json             # Project metadata and scripts
+└── README.md                # Project documentation
+
+---
 
 
