@@ -318,13 +318,14 @@ const styles = StyleSheet.create({
   msgText: { fontSize: 16 },
 });
 ```
-
-- | Event                    | Who Triggers        | What Happens                                     |
-- | ------------------------ | ------------------- | ------------------------------------------------ |
-- | `registerUser`           | Each logged-in user | Registers socket in server memory                |
-- | `sendMessage`            | Sender              | Emits to server → saved in DB → sent to receiver |
-- | `receiveMessage`         | Receiver            | Listens & updates UI instantly                   |
-- | REST API (`getMessages`) | On screen load      | Fetches chat history from DB                     |
+```
+| Event                    | Who Triggers        | What Happens                                     |
+| ------------------------ | ------------------- | ------------------------------------------------ |
+| `registerUser`           | Each logged-in user | Registers socket in server memory                |
+| `sendMessage`            | Sender              | Emits to server → saved in DB → sent to receiver |
+| `receiveMessage`         | Receiver            | Listens & updates UI instantly                   |
+| REST API (`getMessages`) | On screen load      | Fetches chat history from DB                     |
+```
 
 #### Example Usage
 -When you navigate to this screen
