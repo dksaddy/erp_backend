@@ -105,10 +105,12 @@ npm run dev
 }
 ```
 
+---
+
 ### Message with Socket IO
 
-- Send message
-- http://localhost:5000/api/messages
+#### Send message
+- /api/messages
 - POST
 
 ```bash
@@ -118,16 +120,16 @@ npm run dev
 }
 ```
 
-- Get chat between two users
-- http://localhost:5000/api/messages/68efd930ecb073ac87a0c5df [reciver id]
+#### Get chat between two users
+- /api/messages/68efd930ecb073ac87a0c5df [reciver id]
 - GET
 
 ```bash
 No Body needed
 ```
 
-- Mark messages as read
-- http://localhost:5000/api/messages/read
+#### Mark messages as read
+- /api/messages/read
 - PUT
 
 ```bash
@@ -137,7 +139,7 @@ No Body needed
 
 ```
 
-- Frontend Socket Events (for Next.js or React)
+#### Frontend Socket Events (for Next.js or React)
 
 ```bash
 import { io } from "socket.io-client";
