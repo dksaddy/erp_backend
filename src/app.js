@@ -5,6 +5,7 @@ import helmet from "helmet";
 
 import authRoutes from "./modules/auth/auth.routes.js";
 import requisitionRoutes from "./modules/requisition/requisition.routes.js";
+import messageRoutes from "./modules/message/message.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use(helmet());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/requisitions", requisitionRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => res.send("ERP API Running"));
 

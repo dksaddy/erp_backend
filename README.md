@@ -33,6 +33,7 @@ cd erp_backend
 ```
 
 ## Setup .env
+
 - PORT=5000
 - MONGO_URI=your_secret
 - JWT_SECRET=your_jwt_secret
@@ -44,7 +45,9 @@ npm run dev
 ```
 
 ### Registration
+
 - /api/auth/register
+
 ```bash
 {
   "name": "Alice Johnson",
@@ -56,7 +59,9 @@ npm run dev
 ```
 
 ### Login
+
 - /api/auth/login
+
 ```bash
 {
   "email": "alice@example.com",
@@ -67,8 +72,10 @@ npm run dev
 ---
 
 ### Requisition
+
 - POST
 - /api/requisitions
+
 ```bash
 {
   "title": "Laptop Purchase",
@@ -87,8 +94,10 @@ npm run dev
 ```
 
 ### Requisition Update
+
 - /api/requisitions/:id
 - PUT
+
 ```bash
 {
   "decision": "approve",
@@ -96,26 +105,82 @@ npm run dev
 }
 ```
 
+### Message with Socket IO
+
+- Send message
+- http://localhost:5000/api/messages
+- POST
+
+```bash
+{
+  "receiverId": "68efd930ecb073ac87a0c5df",
+  "message": "Hello, how are you?"
+}
+```
+
+- Get chat between two users
+- http://localhost:5000/api/messages/68efd930ecb073ac87a0c5df [reciver id]
+- GET
+
+```bash
+No Body needed
+```
+
+- Mark messages as read
+- http://localhost:5000/api/messages/read
+- PUT
+
+```bash
+{
+  "senderId": "68efd930ecb073ac87a0c5df"
+}
+
+```
+
+- Frontend Socket Events (for Next.js or React)
+
+```bash
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:5000");
+
+// Register user
+socket.emit("registerUser", userId);
+
+// Listen for incoming messages
+socket.on("receiveMessage", (msg) => {
+  console.log("📩 New message:", msg);
+});
+
+// Send message
+socket.emit("sendMessage", {
+  senderId: userId,
+  receiverId: receiverId,
+  message: "Hey there 👋"
+});
+
+```
+
+
 ## Project Structure
 
 erp_backend/
+
 - ├── src/
-- │   ├── app.js               # Express app setup
-- │   ├── server.js            # Server entry point
-- │   ├── config/
-- │   │   └── db.js            # MongoDB connection
-- │   ├── middlewares/
-- │   │   └── authMiddleware.js # Authentication middleware
-- │   ├── models/              # Mongoose models
-- │   ├── modules/             # Feature modules
-- │   │   ├── auth/            # Authentication module
-- │   │   └── requisition/     # Requisition module
-- │   └── utils/
-- │       └── generateToken.js # JWT token generator
-- ├── .env                     # Environment variables
-- ├── package.json             # Project metadata and scripts
-- └── README.md                # Project documentation
+- │ ├── app.js # Express app setup
+- │ ├── server.js # Server entry point
+- │ ├── config/
+- │ │ └── db.js # MongoDB connection
+- │ ├── middlewares/
+- │ │ └── authMiddleware.js # Authentication middleware
+- │ ├── models/ # Mongoose models
+- │ ├── modules/ # Feature modules
+- │ │ ├── auth/ # Authentication module
+- │ │ └── requisition/ # Requisition module
+- │ └── utils/
+- │ └── generateToken.js # JWT token generator
+- ├── .env # Environment variables
+- ├── package.json # Project metadata and scripts
+- └── README.md # Project documentation
 
 ---
-
-
