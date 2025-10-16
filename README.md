@@ -139,30 +139,204 @@ No Body needed
 
 ```
 
-#### Frontend Socket Events (for Next.js or React)
+---
+
+#### Socket Testing
+```bash
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Socket.IO Test</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>Socket.IO Test</h1>
+  <script>
+    const socket = io("http://localhost:5000");
+
+    socket.emit("registerUser", "68efd930ecb073ac87a0c5df");
+
+    socket.on("receiveMessage", (msg) => {
+      console.log("📩 Message received:", msg);
+    });
+
+    socket.emit("sendMessage", {
+      senderId: "68efd930ecb073ac87a0c5df",
+      receiverId: "68efca76c10482d639132cb5",
+      message: "Test! saddy",
+    });
+  </script>
+</body>
+</html>
+```
+---
+
+#### Frontend Socket Events (React Native sender + receiver integration)
+
+- Install socket.io-client:
 
 ```bash
+npm install socket.io-client
+```
+- Then import it
+```bash
 import { io } from "socket.io-client";
+```
+-Make sure your backend Socket.IO server runs on something like
+```bash
+http://192.168.x.x:5000
+```
+- (Replace with your local IP address, not localhost, since RN runs on a device/emulator.)
 
-const socket = io("http://localhost:5000");
+- ChatScreen.js — Full Example
 
-// Register user
-socket.emit("registerUser", userId);
+- This single screen works for both sender and receiver (based on logged-in user).
 
-// Listen for incoming messages
-socket.on("receiveMessage", (msg) => {
-  console.log("📩 New message:", msg);
+```bash
+import React, { useEffect, useState, useRef } from "react";
+import { View, TextInput, FlatList, Text, Button, StyleSheet } from "react-native";
+import { io } from "socket.io-client";
+import axios from "axios";
+
+const SOCKET_URL = "http://192.168.0.105:5000"; // change this
+const API_URL = "http://192.168.0.105:5000/api/messages"; // your REST API base
+
+export default function ChatScreen({ route }) {
+  const { userId, receiverId, token } = route.params; // e.g. logged in user & chat partner
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const socketRef = useRef(null);
+
+  // ✅ Connect socket and register user
+  useEffect(() => {
+    socketRef.current = io(SOCKET_URL, { transports: ["websocket"] });
+
+    socketRef.current.on("connect", () => {
+      console.log("✅ Connected to socket:", socketRef.current.id);
+      socketRef.current.emit("registerUser", userId);
+    });
+
+    // 🔥 Listen for new messages
+    socketRef.current.on("receiveMessage", (newMsg) => {
+      console.log("📩 Received message:", newMsg);
+      setMessages((prev) => [...prev, newMsg]);
+    });
+
+    // cleanup
+    return () => socketRef.current.disconnect();
+  }, []);
+
+  // ✅ Load chat history via REST API
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/${receiverId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMessages(res.data);
+      } catch (err) {
+        console.error("Fetch messages error:", err);
+      }
+    };
+    fetchMessages();
+  }, [receiverId]);
+
+  // ✅ Send message (emit + optional REST save)
+  const handleSend = () => {
+    if (!message.trim()) return;
+
+    const msgData = {
+      senderId: userId,
+      receiverId,
+      message,
+    };
+
+    // emit to socket server
+    socketRef.current.emit("sendMessage", msgData);
+
+    // optimistic update (instantly show message)
+    setMessages((prev) => [...prev, { ...msgData, self: true }]);
+    setMessage("");
+  };
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={messages}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              styles.msgBubble,
+              item.senderId === userId ? styles.sent : styles.received,
+            ]}
+          >
+            <Text style={styles.msgText}>{item.message}</Text>
+          </View>
+        )}
+      />
+
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.input}
+          placeholder="Type message..."
+          value={message}
+          onChangeText={setMessage}
+        />
+        <Button title="Send" onPress={handleSend} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 10, backgroundColor: "#fff" },
+  inputRow: { flexDirection: "row", alignItems: "center", marginTop: 10 },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    padding: 10,
+    marginRight: 10,
+  },
+  msgBubble: {
+    marginVertical: 5,
+    padding: 10,
+    borderRadius: 15,
+    maxWidth: "80%",
+  },
+  sent: {
+    alignSelf: "flex-end",
+    backgroundColor: "#DCF8C6",
+  },
+  received: {
+    alignSelf: "flex-start",
+    backgroundColor: "#ECECEC",
+  },
+  msgText: { fontSize: 16 },
 });
-
-// Send message
-socket.emit("sendMessage", {
-  senderId: userId,
-  receiverId: receiverId,
-  message: "Hey there 👋"
-});
-
 ```
 
+- | Event                    | Who Triggers        | What Happens                                     |
+- | ------------------------ | ------------------- | ------------------------------------------------ |
+- | `registerUser`           | Each logged-in user | Registers socket in server memory                |
+- | `sendMessage`            | Sender              | Emits to server → saved in DB → sent to receiver |
+- | `receiveMessage`         | Receiver            | Listens & updates UI instantly                   |
+- | REST API (`getMessages`) | On screen load      | Fetches chat history from DB                     |
+
+#### Example Usage
+-When you navigate to this screen
+```bash
+navigation.navigate("ChatScreen", {
+  userId: "68efd930ecb073ac87a0c5df",  // logged in user
+  receiverId: "68efca76c10482d639132cb5",
+  token: userToken
+});
+```
+
+---
 
 ## Project Structure
 
