@@ -8,6 +8,7 @@ import requisitionRoutes from "./modules/requisition/requisition.routes.js";
 import messageRoutes from "./modules/message/message.routes.js";
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
