@@ -1,5 +1,6 @@
 import Message from "./message.model.js";
 import User from "../../models/user.model.js";
+import {onlineUsers} from "./message.socket.js";
 
 // ✅ Send message (API)
 export const sendMessage = async (req, res) => {
@@ -105,5 +106,85 @@ export const getLastMessagePreview = async (req, res) => {
   } catch (error) {
     console.error("Last Preview Error:", error);
     res.status(500).json({ message: "Failed to fetch last message preview" });
+  }
+};
+
+function formatTime(date) {
+  if (!date) return "";
+  const now = new Date();
+  const d = new Date(date);
+  const isToday = d.toDateString() === now.toDateString();
+
+  if (isToday) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const diff = now.getDate() - d.getDate();
+  if (diff === 1) return "Yesterday";
+  return d.toLocaleDateString();
+}
+
+export const getChatList = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const participants = await Message.aggregate([
+      {
+        $match: {
+          $or: [{ senderId: userId }, { receiverId: userId }],
+        },
+      },
+      {
+        $project: {
+          otherUser: {
+            $cond: [
+              { $eq: ["$senderId", userId] },
+              "$receiverId",
+              "$senderId",
+            ],
+          },
+          createdAt: 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$otherUser",
+          lastTimestamp: { $max: "$createdAt" },
+        },
+      },
+      { $sort: { lastTimestamp: -1 } },
+    ]);
+
+    const chatList = await Promise.all(
+      participants.map(async (p) => {
+        const otherUser = await User.findById(p._id).select("name");
+        const lastMsg = await Message.findOne({
+          $or: [
+            { senderId: userId, receiverId: p._id },
+            { senderId: p._id, receiverId: userId },
+          ],
+        })
+          .sort({ createdAt: -1 })
+          .select("message createdAt");
+
+        const unreadCount = await Message.countDocuments({
+          senderId: p._id,
+          receiverId: userId,
+          read: false,
+        });
+
+        return {
+          userId: p._id,
+          name: otherUser.name,
+          lastMessage: lastMsg?.message || "",
+          time: formatTime(lastMsg?.createdAt),
+          timestamp: lastMsg?.createdAt || new Date(0),
+          unread: unreadCount,
+          online: onlineUsers.has(p._id.toString()), // ✅ real-time status
+        };
+      })
+    );
+
+    res.status(200).json(chatList);
+  } catch (error) {
+    console.error("Chat List Error:", error);
+    res.status(500).json({ message: "Failed to fetch chat list" });
   }
 };

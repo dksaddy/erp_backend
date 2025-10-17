@@ -1,3 +1,4 @@
+import e from "express";
 import Message from "./message.model.js";
 
 const onlineUsers = new Map();
@@ -44,3 +45,5 @@ export const initMessageSocket = (io) => {
     });
   });
 };
+
+export {onlineUsers};
