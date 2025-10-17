@@ -337,6 +337,20 @@ navigation.navigate("ChatScreen", {
 });
 ```
 
+#### Projects Api
+
+- create project.
+
+```bash
+{
+  "title": "Telecure App",
+  "description": "A telemedicine app for remote healthcare consultation.",
+  "status": "Ongoing",
+  "deadline": "2025-10-30",
+  "team": ["68efca76c10482d639132cb5", "68efd930ecb073ac87a0c5df", "68f08e3ae5f8ef014fb8b43b"]
+}
+```
+
 ---
 
 ## Project Structure

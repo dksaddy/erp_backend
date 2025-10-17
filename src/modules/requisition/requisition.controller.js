@@ -68,6 +68,22 @@ export const getMyRequisitions = async (req, res) => {
   }
 };
 
+// 🟢 Get all requisitions (for admin or global view)
+export const getALLRequisitions = async (req, res) => {
+  try {
+    // Fetch all requisitions, sorted by creation date (latest first)
+    const requisitions = await Requisition.find()
+      .populate("requesterId", "name email role") // optional: include user info
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(requisitions);
+  } catch (err) {
+    console.error("❌ Get All Requisitions Error:", err);
+    res.status(500).json({ message: "Failed to fetch requisitions" });
+  }
+};
+
+
 // 🔵 Approve or reject a requisition step
 export const updateRequisitionStatus = async (req, res) => {
   try {
