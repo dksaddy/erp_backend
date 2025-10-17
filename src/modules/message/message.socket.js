@@ -24,9 +24,11 @@ export const initMessageSocket = (io) => {
       const receiverSocket = onlineUsers.get(receiverId);
       if (receiverSocket) {
         io.to(receiverSocket).emit("receiveMessage", newMessage);
+        io.to(receiverSocket).emit("refreshChatList"); // 🔁 trigger chat list refresh
       }
 
       io.to(socket.id).emit("messageSent", newMessage);
+      io.to(socket.id).emit("refreshChatList");
     });
 
     // Typing indicator
