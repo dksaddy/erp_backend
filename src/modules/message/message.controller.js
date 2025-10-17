@@ -1,6 +1,7 @@
 import Message from "./message.model.js";
 import User from "../../models/user.model.js";
 import {onlineUsers} from "./message.socket.js";
+import e from "express";
 
 
 export const sendMessage = async (req, res) => {
@@ -22,6 +23,7 @@ export const sendMessage = async (req, res) => {
     console.error("Send Message Error:", error);
     res.status(500).json({ message: "Failed to send message" });
   }
+  console.log("User sent message" + onlineUsers);
 };
 
 
@@ -139,5 +141,21 @@ export const getChatList = async (req, res) => {
   } catch (error) {
     console.error("Chat List Error:", error);
     res.status(500).json({ message: "Failed to fetch chat list" });
+  }
+};
+
+
+export const getRecieiver = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("name");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  }
+  catch (error) {
+    console.error("Get Receiver Error:", error);
+    res.status(500).json({ message: "Failed to fetch receiver" });
   }
 };
